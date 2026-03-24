@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Users CRUD</title>
+</head>
+<body>
+<h1>Пользователи</h1>
+<table border="1">
+    <tr>
+        <th>ID</th><th>Name</th><th>Surname</th><th>Email</th><th>Действия</th>
+    </tr>
+    <tr th:each="user : ${users}">
+        <td th:text="${user.id}">1</td>
+        <td th:text="${user.name}">Имя</td>
+        <td th:text="${user.surname}">Фамилия</td>
+        <td th:text="${user.email}">email@example.com</td>
+        <td>
+            <form th:action="@{/users/update}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${user.id}"/>
+                <input type="text" name="name" th:value="${user.name}"/>
+                <input type="text" name="surname" th:value="${user.surname}"/>
+                <input type="text" name="email" th:value="${user.email}"/>
+                <button type="submit">Обновить</button>
+            </form>
+            <form th:action="@{/users/delete}" method="post" style="display:inline;">
+                <input type="hidden" name="id" th:value="${user.id}"/>
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
+    </tr>
+</table>
+<h2>Добавить нового</h2>
+<form th:action="@{/users/add}" method="post">
+    <p>Name: <input type="text" name="name"/></p>
+    <p>Surname: <input type="text" name="surname"/></p>
+    <p>Email: <input type="text" name="email"/></p>
+    <button type="submit">Добавить</button>
+</form>
+</body>
+</html>
