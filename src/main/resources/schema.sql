@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
     name VARCHAR(100),
     surname VARCHAR(100),
     email VARCHAR(100) UNIQUE NOT NULL,
+    age BIGINT,
     password VARCHAR(255) NOT NULL
 );
 
