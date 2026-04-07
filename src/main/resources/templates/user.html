@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<nav class="navbar navbar-dark bg-dark">
+    <div class="container">
+        <span class="navbar-brand">User Profile</span>
+        <div class="d-flex">
+            <span class="navbar-text me-3" id="currentUserEmail"></span>
+            <form th:action="@{/logout}" method="post">
+                <button type="submit" class="btn btn-outline-light">Logout</button>
+            </form>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h3 class="mb-0">About user</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                        </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                        <tr>
+                            <td colspan="5" class="text-center">Loading...</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    async function loadUserProfile() {
+        try {
+            const response = await fetch('/user');
+            const user = await response.json();
+
+            document.getElementById('currentUserEmail').textContent = 'Welcome, ' + user.email;
+
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML = `
+                <tr>
+                    <td>${user.id}</td>
+                    <td>${user.name || ''}</td>
+                    <td>${user.surname || ''}</td>
+                    <td>${user.email}</td>
+                    <td>${user.roles.map(r => r.name.replace('ROLE_', '')).join(', ')}</td>
+                </tr>
+            `;
+        } catch (error) {
+            console.error('Error loading user profile:', error);
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', loadUserProfile);
+</script>
+</body>
+</html>

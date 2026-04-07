@@ -1,5 +1,6 @@
 package kata.spring_boot_app.service;
 
+import org.springframework.transaction.annotation.Transactional;
 import kata.spring_boot_app.model.User;
 import kata.spring_boot_app.repository.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,6 @@ public class UserServiceImpl implements UserService {
         this.coder = coder;
     }
 
-
     @Override
     public void addUser(User user) {
         user.setPassword(coder.encode(user.getPassword()));
@@ -41,18 +41,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
+    public void updateUser(User user) {
+        User existing = findById(user.getId());
+        if (existing != null) {
+            existing.setName(user.getName());
+            existing.setSurname(user.getSurname());
+            existing.setEmail(user.getEmail());
+            existing.setRoles(user.getRoles());
+
+            if (user.getPassword() != null && !user.getPassword().isEmpty()) {
+                existing.setPassword(coder.encode(user.getPassword()));
+            }
+
+            userDao.save(existing);
+        }
+    }
+
+    @Override
     public void deleteUser(Long id) {
         userDao.delete(findById(id));
     }
 
     @Override
     public User findByEmail(String email) {
-        return userDao.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("not found"));
+        return userDao.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("not found"));
     }
 
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userDao.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("Not found"));
+        return userDao.findByEmail(email).orElseThrow(() -> new UsernameNotFoundException("Not found"));
     }
 }

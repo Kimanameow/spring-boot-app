@@ -16,4 +16,5 @@ public interface UserService extends UserDetailsService {
     void deleteUser(Long id);
 
     User findByEmail(String email);
+    void updateUser(User user);
 }
