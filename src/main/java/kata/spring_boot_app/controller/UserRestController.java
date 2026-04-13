@@ -1,5 +1,7 @@
 package kata.spring_boot_app.controller;
 
+import kata.spring_boot_app.Mapper;
+import kata.spring_boot_app.dto.UserDTO;
 import kata.spring_boot_app.model.User;
 import kata.spring_boot_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,11 +24,11 @@ public class UserRestController {
     }
 
     @GetMapping
-    public ResponseEntity<User> userProfile() {
+    public ResponseEntity<UserDTO> userProfile() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = userService.findByEmail(auth.getName());
-        if(user != null) {
-            return ResponseEntity.ok(user);
+        if (user != null) {
+            return ResponseEntity.ok(Mapper.toUserDto(user));
         }
         return ResponseEntity.notFound().build();
     }

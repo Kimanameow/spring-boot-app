@@ -1,10 +1,13 @@
 package kata.spring_boot_app.controller;
 
+import kata.spring_boot_app.Mapper;
+import kata.spring_boot_app.dto.UserDTO;
 import kata.spring_boot_app.model.Role;
 import kata.spring_boot_app.model.User;
 import kata.spring_boot_app.repository.RoleDao;
 import kata.spring_boot_app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,33 +29,34 @@ public class AdminRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> listUsers() {
+    public ResponseEntity<List<UserDTO>> listUsers() {
         List<User> users = userService.allUsers();
-        return ResponseEntity.ok(users);
+        return ResponseEntity.ok(users.stream().map(Mapper::toUserDto).toList());
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user,
-                                           @RequestParam(required = false) List<Long> roleIds) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody User user,
+                                              @RequestParam(required = false) List<Long> roleIds) {
         if (roleIds != null && !roleIds.isEmpty()) {
             user.setRoles(new HashSet<>(roleDao.findAllById(roleIds)));
         } else {
             user.setRoles(new HashSet<>());
         }
         userService.addUser(user);
-        return ResponseEntity.ok(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(Mapper.toUserDto(user));
     }
 
     @GetMapping("users/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         User user = userService.findById(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        return user != null ? ResponseEntity.ok(Mapper.toUserDto(user))
+                : ResponseEntity.notFound().build();
     }
 
     @PutMapping("users/{id}")
-    public ResponseEntity<User> updateUser(@RequestBody User user,
-                                           @RequestParam(required = false) List<Long> roleIds,
-                                           @PathVariable Long id) {
+    public ResponseEntity<UserDTO> updateUser(@RequestBody User user,
+                                              @RequestParam(required = false) List<Long> roleIds,
+                                              @PathVariable Long id) {
         User existingUser = userService.findById(id);
         Set<Role> roles;
         if (existingUser == null) {
@@ -79,7 +83,7 @@ public class AdminRestController {
                 userService.updateUser(existingUser);
             }
         }
-        return ResponseEntity.ok(existingUser);
+        return ResponseEntity.ok(Mapper.toUserDto(existingUser));
     }
 
     @DeleteMapping("/users/{id}")
